@@ -14,11 +14,18 @@ export const register = async (req, res) => {
                 success: false
             });
         };
-        const file = req.file;
-         const fileUri = getDataUri(file);
-         const cloudResponse = await cloudinary.uploader.upload(fileUri.content,{
-             resource_type: "raw"
-         });
+        // const file = req.file;
+        //  const fileUri = getDataUri(file);
+        //  const cloudResponse = await cloudinary.uploader.upload(fileUri.content,{
+        //      resource_type: "raw"
+        //  });
+        let cloudResponse = { secure_url: "" };
+if (req.file) {
+    const fileUri = getDataUri(req.file);
+    cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+        resource_type: "raw"
+    });
+}
 
         const user = await User.findOne({ email });
         if (user) {

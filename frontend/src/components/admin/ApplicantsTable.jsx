@@ -37,6 +37,7 @@ const ApplicantsTable = () => {
                         <TableHead>Contact</TableHead>
                         <TableHead>Resume</TableHead>
                         <TableHead>Date</TableHead>
+                        <TableHead>AI Insights</TableHead>
                         <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -53,6 +54,18 @@ const ApplicantsTable = () => {
                                     }
                                 </TableCell>
                                 <TableCell>{item?.applicant.createdAt.split("T")[0]}</TableCell>
+                                <TableCell>
+    {item?.aiAnalysis?.tone ? (
+        <div className="text-xs">
+            <p><b>Tone:</b> {item.aiAnalysis.tone}</p>
+            <p><b>Confidence:</b> {item.aiAnalysis.confidence}</p>
+            <p><b>Summary:</b> {item.aiAnalysis.summary}</p>
+        </div>
+    ) : (
+        <span className="text-xs text-gray-400">No analysis</span>
+    )}
+</TableCell>
+                                
                                 <TableCell className="float-right cursor-pointer">
                                     <Popover>
                                         <PopoverTrigger>

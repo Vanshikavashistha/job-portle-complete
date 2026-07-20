@@ -26,6 +26,7 @@ const PostJob = () => {
         companyId: ""
     });
     const [loading, setLoading]= useState(false);
+    const [enhancing, setEnhancing] = useState(false);
     const navigate = useNavigate();
 
     const { companies } = useSelector(store => store.company);
@@ -37,6 +38,28 @@ const PostJob = () => {
         const selectedCompany = companies.find((company)=> company.name.toLowerCase() === value);
         setInput({...input, companyId:selectedCompany._id});
     };
+    const enhanceDescription = async () => {
+    if (!input.description.trim()) {
+        toast.error("Pehle thodi si description likho");
+        return;
+    }
+    try {
+        setEnhancing(true);
+        const res = await axios.post(
+            "http://localhost:8000/api/v1/ai/enhance-description",
+            { description: input.description },
+            { headers: { "Content-Type": "application/json" } }
+        );
+        if (res.data.success) {
+            setInput({ ...input, description: res.data.enhancedDescription });
+            toast.success("Description enhanced!");
+        }
+    } catch (error) {
+        toast.error("AI enhancement failed");
+    } finally {
+        setEnhancing(false);
+    }
+};
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -76,15 +99,23 @@ const PostJob = () => {
                             />
                         </div>
                         <div>
-                            <Label>Description</Label>
-                            <Input
-                                type="text"
-                                name="description"
-                                value={input.description}
-                                onChange={changeEventHandler}
-                                className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
-                            />
-                        </div>
+    <Label>Description</Label>
+    <Input
+        type="text"
+        name="description"
+        value={input.description}
+        onChange={changeEventHandler}
+        className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
+    />
+    <Button
+        type="button"
+        onClick={enhanceDescription}
+        disabled={enhancing}
+        className="mt-1 text-xs h-7"
+    >
+        {enhancing ? "Enhancing..." : "✨ Enhance with AI"}
+    </Button>
+</div>
                         <div>
                             <Label>Requirements</Label>
                             <Input

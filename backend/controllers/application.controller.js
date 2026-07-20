@@ -1,10 +1,17 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const applyJob = async (req, res) => {
     try {
         const userId = req.id;
         const jobId = req.params.id;
+        //const { coverLetter } = req.body;
+        const { coverLetter } = req.query;
         if (!jobId) {
             return res.status(400).json({
                 message: "Job id is required.",
@@ -29,10 +36,32 @@ export const applyJob = async (req, res) => {
                 success: false
             })
         }
+        let aiAnalysis = {};
+if (coverLetter && coverLetter.trim()) {
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are an HR assistant. Analyze the candidate's cover letter and respond ONLY with valid JSON: {\"tone\": \"short tone\", \"confidence\": \"low, medium, or high\", \"keySkillsMentioned\": [\"skill1\"], \"summary\": \"one sentence\"}",
+                },
+                { role: "user", content: coverLetter },
+            ],
+        });
+        const raw = completion.choices[0].message.content;
+        const cleaned = raw.replace(/```json|```/g, "").trim();
+        aiAnalysis = JSON.parse(cleaned);
+    } catch (err) {
+        console.log("AI analysis failed:", err.message);
+    }
+}
         // create a new application
         const newApplication = await Application.create({
             job:jobId,
             applicant:userId,
+            coverLetter: coverLetter || "",
+            aiAnalysis,
         });
 
         job.applications.push(newApplication._id);

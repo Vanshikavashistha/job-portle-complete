@@ -13,6 +13,7 @@ const JobDescription = () => {
     const {user} = useSelector(store=>store.auth);
     const isIntiallyApplied = singleJob?.applications?.some(application => application.applicant === user?._id) || false;
     const [isApplied, setIsApplied] = useState(isIntiallyApplied);
+    const [coverLetter, setCoverLetter] = useState("");
 
     const params = useParams();
     const jobId = params.id;
@@ -20,7 +21,8 @@ const JobDescription = () => {
 
     const applyJobHandler = async () => {
         try {
-            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
+            //const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
+            const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}?coverLetter=${encodeURIComponent(coverLetter)}`, {withCredentials:true});
             
             if(res.data.success){
                 setIsApplied(true); // Update the local state
@@ -61,6 +63,15 @@ const JobDescription = () => {
                         <Badge className={'text-[#7209b7] font-bold'} variant="ghost">{singleJob?.salary}LPA</Badge>
                     </div>
                 </div>
+                {!isApplied && (
+    <textarea
+        value={coverLetter}
+        onChange={(e) => setCoverLetter(e.target.value)}
+        placeholder="Why are you a good fit for this role? (optional)"
+        className="w-full border rounded-lg p-2 my-2 text-sm"
+        rows={3}
+    />
+)}
                 <Button
                 onClick={isApplied ? null : applyJobHandler}
                     disabled={isApplied}
