@@ -46,7 +46,7 @@ const PostJob = () => {
     try {
         setEnhancing(true);
         const res = await axios.post(
-            "http://localhost:8000/api/v1/ai/enhance-description",
+            "https://job-portle-complete.onrender.com/api/v1/ai/enhance-description",
             { description: input.description },
             { headers: { "Content-Type": "application/json" } }
         );
